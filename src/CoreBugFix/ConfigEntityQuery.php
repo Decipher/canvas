@@ -63,7 +63,10 @@ final class ConfigEntityQuery extends Query {
     $this->initializePager();
 
     if ($this->range) {
-      $result = array_slice($result, $this->range['start'], $this->range['length'], TRUE);
+      // JSON:API passes `page[offset]` as the string it received in the URL.
+      // Core's query class coerces it; under strict types it must be cast.
+      $length = $this->range['length'] === NULL ? NULL : (int) $this->range['length'];
+      $result = array_slice($result, (int) $this->range['start'], $length, TRUE);
     }
     if ($this->count) {
       return count($result);
